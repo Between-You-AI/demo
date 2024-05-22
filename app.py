@@ -26,7 +26,6 @@ def chat():
     user_message = request.json.get("message")
     if not user_message:
         return jsonify({"error": "No message provided"}), 400
-    os.environ["OPENAI_API_KEY"] = "sk-proj-iXNcqatsMuM3v2AdKtZuT3BlbkFJqhsdqIP3ZMqa6PY3Dijp"
     client = instructor.from_openai(OpenAI())
     user_info = client.chat.completions.create(
         model="gpt-3.5-turbo",
