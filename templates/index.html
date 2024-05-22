@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChatGPT-like Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .chat-container {
+            width: 60%;
+            margin: auto;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            max-height: 500px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background: #fff;
+        }
+        .chat-box p {
+            margin: 10px 0;
+        }
+        .user-message {
+            text-align: right;
+            color: #007bff;
+        }
+        .bot-response {
+            text-align: left;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            height: 60px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+    <script>
+        async function sendMessage() {
+            const message = document.getElementById('user-message').value;
+            if (message.trim() === '') return;
+
+            const chatBox = document.getElementById('chat-box');
+            const userMessageElement = document.createElement('p');
+            userMessageElement.classList.add('user-message');
+            userMessageElement.textContent = `User: ${message}`;
+            chatBox.appendChild(userMessageElement);
+
+            document.getElementById('user-message').value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            });
+            const data = await response.json();
+
+            const botResponseElement = document.createElement('p');
+            botResponseElement.classList.add('bot-response');
+            botResponseElement.innerHTML = `
+                <strong>Type:</strong> ${data.type}<br>
+                <strong>Steps:</strong> ${data.steps.join(', ')}<br>
+                <strong>Estimated Time:</strong> ${data.estimated_time}<br>
+                <strong>Description:</strong> ${data.desc}<br>
+                <strong>Questions:</strong> ${data.questions}
+            `;
+            chatBox.appendChild(botResponseElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>ChatGPT-like Chat</h1>
+        <div id="chat-box" class="chat-box"></div>
+        <textarea id="user-message" onkeypress="handleKeyPress(event)" placeholder="Type your message here..."></textarea>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</body>
+</html>
